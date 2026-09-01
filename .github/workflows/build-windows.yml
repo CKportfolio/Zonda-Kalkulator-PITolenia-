@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install build dependencies
+        run: pip install -r requirements-build.txt
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Build one-file executable
+        run: pyinstaller --clean --noconfirm --onefile --name ZondaPIT scripts/kalkulatorZONDA.py
+      - name: Write provenance
+        shell: pwsh
+        run: |
+          (Get-FileHash dist/ZondaPIT.exe -Algorithm SHA256).Hash | Out-File -Encoding ascii dist/SHA256.txt
+          "${{ github.sha }}" | Out-File -Encoding ascii dist/BUILD_COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZondaPIT-windows-${{ github.sha }}
+          path: |
+            dist/ZondaPIT.exe
+            dist/SHA256.txt
+            dist/BUILD_COMMIT.txt
