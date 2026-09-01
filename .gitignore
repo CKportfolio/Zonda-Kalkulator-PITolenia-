@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.spec
+_wrzuc_raport/*
+!_wrzuc_raport/.gitkeep
+Zonda PIT38 *.csv
+.env
